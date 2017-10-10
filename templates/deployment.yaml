@@ -1,0 +1,83 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: {{ template "helpy.fullname" . }}
+  labels:
+    app: {{ template "helpy.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ template "helpy.fullname" . }}
+    spec:
+      containers:
+      - name: {{ template "helpy.fullname" . }}
+        image: "{{ .Values.image }}"
+        imagePullPolicy: {{ default "" .Values.imagePullPolicy | quote }}
+        env:
+        {{- if .Values.extraVars }}
+            {{ toYaml .Values.extraVars | indent 8 }}
+        {{- end }}
+        {{- if .Values.databaseType.postgresql }}
+        - name: HELPY_DB_POSTGRES
+          value: {{ template "helpy.postgresql.fullname" . }}
+        - name: HELPY_DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "helpy.postgresql.fullname" . }}
+              key: postgres-password
+        {{- end }}
+        - name: HELPY_USERNAME
+          value: {{ default "" .Values.helpyUsername | quote }}
+        - name: HELPY_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "helpy.fullname" . }}
+              key: helpy-password
+        - name: HELPY_EMAIL
+          value: {{ default "" .Values.helpyEmail | quote }}
+        - name: HELPY_LANG
+          value: {{ default "" .Values.helpyLanguage | quote }}
+        - name: SMTP_HOST
+          value: {{ default "" .Values.smtpHost | quote }}
+        - name: SMTP_PORT
+          value: {{ default "" .Values.smtpPort | quote }}
+        - name: SMTP_USER
+          value: {{ default "" .Values.smtpUser | quote }}
+        - name: SMTP_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: {{ template "helpy.fullname" . }}
+              key: smtp-password
+        - name: SMTP_TLS
+          value: {{ default "" .Values.smtpTls | quote }}
+        ports:
+        - name: http
+          containerPort: 3000
+        livenessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 120
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            path: /
+            port: http
+          initialDelaySeconds: 5
+          timeoutSeconds: 1
+        volumeMounts:
+        - name: helpy-data
+          mountPath: /bitnami/helpy
+      volumes:
+      - name: helpy-data
+      {{- if .Values.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ .Values.persistence.existingClaim | default (include "helpy.fullname" .) }}
+      {{- else }}
+        emptyDir: {}
+      {{- end -}}

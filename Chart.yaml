@@ -1,0 +1,22 @@
+name: helpy
+version: 0.1.0
+appVersion: 1.0.0
+description: A Helm chart for Helpy - A Modern Helpdesk Alternative
+keywords:
+- helpy
+- Helpdesk
+- www
+- http
+- web
+- application
+- ruby
+- rails
+- Postgres
+home: http://demo.helpy.io
+icon: https://bitnami.com/assets/stacks/redmine/img/redmine-stack-220x234.png
+sources:
+- https://github.com/helpyio/helpy
+maintainers:
+- name: LANDG
+  email: not@valid.id
+engine: gotpl
