@@ -114,3 +114,6 @@ networkPolicyApiVersion: extensions/v1beta1
 
 persistence:
   enabled: false
+
+helpy:
+    enabled: true

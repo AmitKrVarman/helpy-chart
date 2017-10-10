@@ -1,23 +1,23 @@
-{{- if .Values.ingress.enabled }}
+{{- if .Values.helpy.enabled }}
 apiVersion: {{ required "A valid .Values.networkPolicyApiVersion entry required!" .Values.networkPolicyApiVersion }}
-kind: Ingress
+kind: helpy
 metadata:
-{{- if .Values.ingress.annotations }}
+{{- if .Values.helpy.annotations }}
   annotations:
-{{ toYaml .Values.ingress.annotations | indent 4 }}
+{{ toYaml .Values.helpy.annotations | indent 4 }}
 {{- end }}
-  name: {{ template "redmine.fullname" . }}
+  name: {{ template "helpy.fullname" . }}
 spec:
   rules:
-  - host: {{ .Values.ingress.hostname | quote }}
+  - host: {{ .Values.helpy.hostname | quote }}
     http:
       paths:
       - path: /
         backend:
-          serviceName: {{ template "redmine.fullname" . }}
+          serviceName: {{ template "helpy.fullname" . }}
           servicePort: 80
-{{- if .Values.ingress.tls }}
+{{- if .Values.helpy.tls }}
   tls:
-{{ toYaml .Values.ingress.tls | indent 4 }}
+{{ toYaml .Values.helpy.tls | indent 4 }}
 {{- end -}}
 {{- end }}
